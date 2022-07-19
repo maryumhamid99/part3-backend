@@ -1,5 +1,9 @@
-require("dotenv").config()
 const express = require('express')
+
+require('dotenv').config()
+
+console.log(`Server running on port ${PORT}`)
+
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
@@ -14,7 +18,7 @@ const requestLogger = morgan(':method :url :status :res[content-length] - :respo
 
 app.use( requestLogger )
 
-app.get("/api/persons", (request, response)=>{
+app.get('/api/persons', (request, response)=>{
     Person.find({}).then( result => response.json(result) )})
 
 app.get('/info', (req, res) => {
@@ -23,7 +27,7 @@ app.get('/info', (req, res) => {
     })
 })
 
-app.get("/api/persons/:id", (req, res, next)=>{
+app.get('/api/persons/:id', (req, res, next)=>{
         Person.findById(req.params.id).then( person => {
         if (person){
             res.json(person)
@@ -34,7 +38,7 @@ app.get("/api/persons/:id", (req, res, next)=>{
     }).catch( error => next(error))
 })
 
-app.delete("/api/persons/:id", (request, response, next)=> {
+app.delete('/api/persons/:id', (request, response, next)=> {
         const id = Number(request.params.id)
   
     Person.findByIdAndRemove(id).then( result => {
@@ -42,16 +46,16 @@ app.delete("/api/persons/:id", (request, response, next)=> {
     }).catch( error => next(error))
 })
 
-app.post("/api/persons", (request, response,next)=>{
+app.post('/api/persons', (request, response,next)=>{
     const person = request.body
     if (!person.name) 
     {
-        return response.status(400).json({error:"name missing "})
+        return response.status(400).json({error:'name missing '})
     }
 
     if ( notes.find(entry => entry.name === person.name) )
     {
-            return response.status(400).json({error:"name must be unique"})
+            return response.status(400).json({error:'name must be unique'})
 
     }
     const entry = new Person( {
@@ -75,7 +79,7 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
 
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
     const updateRequest = {
         name: req.body.name,
         number: res.body.number
