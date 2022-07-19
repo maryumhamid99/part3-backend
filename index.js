@@ -1,41 +1,19 @@
+require("dotenv").config()
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
 const PORT = process.env.PORT || 3001
-
+const Person = require('./src/models/person')
 app.use(cors())
 app.use(express.static('build'))
 app.use( express.json() ) 
 morgan.token('reqbody', req => JSON.stringify(req.body) ) 
 app.use( morgan(':method :url :status :res[content-length] - :response-time ms :reqbody') ) 
 
-let entries = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
 
 app.get("/api/persons", (request, response)=>{
-    response.json(notes)`1`
-})
+    Person.find({}).then( result => response.json(result) )})
 
 app.get('/info', (req, res) => {
     let date = new Date()
@@ -44,15 +22,9 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const entry = notes.find( entry => entry.id === id)
-
-    if(entry){
-        res.json(entry)
-    }
-    else{
-        response.status(404).send(`Person with id ${id} not found.`)
-    }
+    Person.findById(request.params.id).then( person => {
+        response.json(person)
+    }).catch( error => response.status(404).send(`Person not found.`) )
 })
 
 app.delete("/api/persons/:id", (request, response)=> {
@@ -73,10 +45,13 @@ app.post("/api/persons", (request, response)=>{
             return response.status(400).json({error:"name must be unique"})
 
     }
-    person.id = Math.floor( Math.random() * 100000 )
-    notes.concat(person)
-    response.json(person)
+    const entry = new Person( {
+        name: person.name,
+        number: person.number
+    } )
+    entry.save().then( saved => response.json(saved) )
 })
+
 
 
 app.listen(PORT, () => {
