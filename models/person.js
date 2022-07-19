@@ -8,11 +8,15 @@ mongoose.connect(mongoUrl)
     .catch( error => console.log("Error connecting.", error.message) )
 
 const personSchema = new mongoose.Schema({
-    name: {type: String, unique:true , required:true },
-    number: {type: Number, required:true}
+    name: {type: String, unique:true , required:true, minlength: 3 },
+    number: {type: Number, required:true, minlength: 8}
 })
 personSchema.plugin(uniqueValidator)
 
+personSchema.pre('findIdAndUpdate', function(next) {
+    this.options.runValidators = true;
+    next();
+});
 
 personSchema.set( 'toJSON', {
     transform: (document, retObj) => {
