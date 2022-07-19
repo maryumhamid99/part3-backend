@@ -18,12 +18,12 @@ app.get("/api/persons", (request, response)=>{
     Person.find({}).then( result => response.json(result) )})
 
 app.get('/info', (req, res) => {
-    let date = new Date()
-    let msg = `<p>Phonebook has info for ${notes.length} people<\p> <p> ${date} <\p>`
-    res.send(msg)
+    Person.count({}, function( err, count){
+        res.json(`<p>Phonebook ${count} no of persons</p><p>${new Date()}</p>`)
+    })
 })
 
-app.get("/api/persons/:id", (request, response, next)=>{
+app.get("/api/persons/:id", (req, res, next)=>{
         Person.findById(req.params.id).then( person => {
         if (person){
             res.json(person)
@@ -68,4 +68,14 @@ const errorHandler = (error, request, response, next) => {
     }
     next(error)
 }
+
+app.put("/api/persons/:id", (req, res, next) => {
+    const updateRequest = {
+        name: req.body.name,
+        number: res.body.number
+    }
+    Person.findByIdAndUpdate( res.params.id, updateRequest, {new: true} )
+        .then( addPerson => res.json(addPerson) )
+        .catch( error => next(error) )
+})
 app.use( errorHandler ) // handle errors
